@@ -21,6 +21,12 @@ class CalculatorTest {
     }
 
     @Test
+    void emre_add_shouldSumPositiveAndNegative() {
+        Calculator c = new Calculator();
+        assertEquals(-5, c.add(2, -7));
+    }
+
+    @Test
     void divide_byZero_shouldReturnZero_currentBehavior() {
         Calculator c = new Calculator();
         // Aktuelles (schlechtes) Verhalten absichtlich bestätigt – Refactoring in Ü2
