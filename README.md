@@ -1,5 +1,14 @@
 # CI/CD Übung – Java Basisprojekt (Ü1 mit Anleitungen)
 
+---
+
+## Übung 1
+- Autor: Emre Cirpan
+- Besonderheit: Ich nutze Git in meiner Arbeit, aber da ich zu 99% der einzige Contributor bin (Startup Unternehmen), ist die History effektiv 
+	ein Strich. Ich habe daher nie eine Pipeline aufgesetzt oder auch Rebase/Squash/PR usw. genutzt. Wozu auch, wenn nur ich contribute?  
+
+---
+
 Dieses Repository ist der Startpunkt für **Übung 1** und wird in **allen folgenden Übungen** weiterverwendet
 (CI mit GitHub Actions → SonarCloud → Docker → Security-Scan).
 
