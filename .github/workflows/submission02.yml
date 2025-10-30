@@ -63,7 +63,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=mrCrpn_ci-cd-uebung-cirpan
+            -Dsonar.projectKey=mrcrpn_ci-cd-uebung-cirpan
             -Dsonar.organization=mrcrpn
             -Dsonar.java.binaries=target/classes
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
