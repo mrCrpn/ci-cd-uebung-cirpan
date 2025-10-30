@@ -1,4 +1,3 @@
-# .github/workflows/submission02.yml
 name: Submission 02 Workflow
 
 on: [push, pull_request]
@@ -17,7 +16,7 @@ jobs:
     needs: hello
     name: "Test (${{ matrix.os }} / Java ${{ matrix.java }})"
     strategy:
-      fail-fast: false # don't cancel the whole matrix if one job fails
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         java: [17, 21]
@@ -29,17 +28,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: ${{ matrix.java }} # <-- use the matrix value
+          java-version: ${{ matrix.java }}
           cache: maven
 
       - name: Build & Test
         run: mvn -B -DskipTests=false test jacoco:report
-        # jacoco:report ensures jacoco.xml is generated for Sonar
 
       - name: Upload test reports
         if: always()
@@ -55,17 +55,15 @@ jobs:
           name: jacoco-site-${{ matrix.os }}-java${{ matrix.java }}
           path: target/site/jacoco
 
+      # Run Sonar only on Linux (and only once, e.g., JDK 17)
       - name: SonarCloud Scan
+        if: runner.os == 'Linux' && matrix.java == 17
         uses: SonarSource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          # explicit params if auto-detect fails:
-          # projectKey: your_org_your_project
-          # organization: your_org
           args: >
             -Dsonar.projectKey=mrCrpn_ci-cd-uebung-cirpan
-            -Dsonar.organization=mrCrpn 
-            -Dsonar.branch.name=main  
+            -Dsonar.organization=mrcrpn
             -Dsonar.java.binaries=target/classes
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
