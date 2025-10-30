@@ -51,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-site
-          path: target/site/jacoco
+          path: target/site/jacoco-os${{ matrix.os }}-java${{ matrix.java }}
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
