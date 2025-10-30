@@ -15,17 +15,18 @@ jobs:
 
   build-test:
     needs: hello
-    name: "Test (${{matrix.os}} / Java ${{matrix.java}})"
+    name: "Test (${{ matrix.os }} / Java ${{ matrix.java }})"
     strategy:
-      fail-fast: true
+      fail-fast: false # don't cancel the whole matrix if one job fails
       matrix:
         os: [ubuntu-latest, windows-latest]
         java: [17, 21]
         exclude:
-          - os: windows-latest # Eww
+          - os: windows-latest
             java: 21
 
     runs-on: ${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -33,11 +34,12 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: ${{ matrix.java }} # <-- use the matrix value
           cache: maven
 
       - name: Build & Test
-        run: mvn -B -DskipTests=false test
+        run: mvn -B -DskipTests=false test jacoco:report
+        # jacoco:report ensures jacoco.xml is generated for Sonar
 
       - name: Upload test reports
         if: always()
@@ -50,8 +52,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: jacoco-site
-          path: target/site/jacoco-os${{ matrix.os }}-java${{ matrix.java }}
+          name: jacoco-site-${{ matrix.os }}-java${{ matrix.java }}
+          path: target/site/jacoco
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
@@ -62,8 +64,8 @@ jobs:
           # projectKey: your_org_your_project
           # organization: your_org
           args: >
-            -Dsonar.projectKey=<projectkey>
-            -Dsonar.organization=<organization>
-            -Dsonar.branch.name=main
+            -Dsonar.projectKey=mrCrpn_ci-cd-uebung-cirpan
+            -Dsonar.organization=mrCrpn 
+            -Dsonar.branch.name=main  
             -Dsonar.java.binaries=target/classes
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
