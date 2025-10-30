@@ -1,0 +1,69 @@
+# .github/workflows/submission02.yml
+name: Submission 02 Workflow
+
+on: [push, pull_request]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Hello, CI!"
+
+  build-test:
+    needs: hello
+    name: "Test (${{matrix.os}} / Java ${{matrix.java}})"
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        java: [17, 21]
+        exclude:
+          - os: windows-latest # Eww
+            java: 21
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Build & Test
+        run: mvn -B -DskipTests=false test
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-${{ matrix.os }}-java${{ matrix.java }}
+          path: target/surefire-reports
+
+      - name: Upload JaCoCo HTML (optional)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-site
+          path: target/site/jacoco
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          # explicit params if auto-detect fails:
+          # projectKey: your_org_your_project
+          # organization: your_org
+          args: >
+            -Dsonar.projectKey=<projectkey>
+            -Dsonar.organization=<organization>
+            -Dsonar.branch.name=main
+            -Dsonar.java.binaries=target/classes
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
