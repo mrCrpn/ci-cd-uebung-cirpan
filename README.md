@@ -1,5 +1,8 @@
 # CI/CD Übung – Java Basisprojekt (Ü1 mit Anleitungen)
 
+[![submission02](https://github.com/mrcrpn/ci-cd-uebung-cirpan/actions/workflows/submission02.yml/badge.svg)](https://github.com/mrcrpn/ci-cd-uebung-cirpan/actions/workflows/submission02.yml)
+
+
 ---
 
 ## Übung 1
