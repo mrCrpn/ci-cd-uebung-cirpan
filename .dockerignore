@@ -1,0 +1,35 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Build artifacts
+target/
+*.class
+*.jar
+*.war
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation
+doc/
+*.md
+*.pdf
+*.adoc
+
+# CI/CD
+.github/
+
+# Test reports
+surefire-reports/
+jacoco/
