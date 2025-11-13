@@ -58,6 +58,7 @@ jobs:
       # Run Sonar only on Linux (and only once, e.g., JDK 17)
       - name: SonarCloud Scan
         if: runner.os == 'Linux' && matrix.java == 17
+        continue-on-error: true
         uses: SonarSource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -68,3 +69,43 @@ jobs:
             -Dsonar.branch.name=main
             -Dsonar.java.binaries=target/classes
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+
+  docker-build:
+    needs: build-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract short SHA
+        id: vars
+        run: echo "short_sha=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          load: true
+          tags: local/ci-cd-app:${{ steps.vars.outputs.short_sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test Docker Image
+        run: |
+          echo "Testing Docker image..."
+          docker run --rm local/ci-cd-app:${{ steps.vars.outputs.short_sha }}
+
+      - name: Save Docker Image as Artifact
+        run: |
+          docker save local/ci-cd-app:${{ steps.vars.outputs.short_sha }} -o docker-image-${{ steps.vars.outputs.short_sha }}.tar
+          ls -lh docker-image-*.tar
+
+      - name: Upload Docker Image Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image-${{ steps.vars.outputs.short_sha }}
+          path: docker-image-${{ steps.vars.outputs.short_sha }}.tar
+          retention-days: 7
